@@ -28,7 +28,7 @@ export default function Image({ params }: { params?: Record<string, string> }) {
   const text = getTitleFromParams(params);
   const theme = getThemeFromParams(params);
   return createOgImage({
-    text,
+    text: `__ICON_AND_TEXT__${text}`,
     size,
     theme,
   });
