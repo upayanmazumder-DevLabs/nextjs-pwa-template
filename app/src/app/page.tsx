@@ -31,7 +31,7 @@ export default function Home() {
       await sendWebPush(message);
       setFeedback("Push sent!");
       setMessage("");
-    } catch (e) {
+    } catch {
       setFeedback("Failed to send push");
     } finally {
       setSending(false);
