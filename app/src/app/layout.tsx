@@ -14,39 +14,44 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Next.js PWA Template",
-  description:
-    "A modern PWA template built with Next.js, featuring best practices and customizability.",
-  icons: {
-    icon: "/favicon/favicon.ico",
-    shortcut: "/favicon/favicon.ico",
-    apple: "/favicon/apple-touch-icon.png",
-  },
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://nextjs-pwa-template.upayan.dev"
-  ),
-  openGraph: {
-    images: [
-      {
-        url: "/icons/icon-512x512.webp",
-        width: 512,
-        height: 512,
-        alt: "App Icon",
-      },
-    ],
-  },
-  twitter: {
-    images: [
-      {
-        url: "/icons/icon-512x512.webp",
-        width: 512,
-        height: 512,
-        alt: "App Icon",
-      },
-    ],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://nextjs-pwa-template.upayan.dev";
+  const ogImageUrl = `${siteUrl}/opengraph-image?text=Next.js%20PWA%20Template&theme=light`;
+  const twitterImageUrl = `${siteUrl}/twitter-image?text=Next.js%20PWA%20Template&theme=light`;
+  return {
+    title: "Next.js PWA Template",
+    description:
+      "A modern PWA template built with Next.js, featuring best practices and customizability.",
+    icons: {
+      icon: "/favicon/favicon.ico",
+      shortcut: "/favicon/favicon.ico",
+      apple: "/favicon/apple-touch-icon.png",
+    },
+    metadataBase: new URL(siteUrl),
+    openGraph: {
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: "Next.js PWA Template",
+        },
+      ],
+    },
+    twitter: {
+      images: [
+        {
+          url: twitterImageUrl,
+          width: 1200,
+          height: 630,
+          alt: "Next.js PWA Template",
+        },
+      ],
+    },
+  };
+}
 
 export default function RootLayout({
   children,
