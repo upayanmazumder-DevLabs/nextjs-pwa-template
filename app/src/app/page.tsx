@@ -58,9 +58,11 @@ function PushNotificationManager() {
   }
 
   async function unsubscribeFromPush() {
-    await subscription?.unsubscribe();
-    setSubscription(null);
-    await unsubscribeUser();
+    if (subscription) {
+      await subscription.unsubscribe();
+      setSubscription(null);
+      await unsubscribeUser(subscription.endpoint);
+    }
   }
 
   async function sendTestNotification() {

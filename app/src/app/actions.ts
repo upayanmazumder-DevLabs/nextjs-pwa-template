@@ -1,10 +1,13 @@
 "use server";
 
 import webpush from "web-push";
-import dotenv from "dotenv";
-import fs from "fs";
+import { createClient } from "@supabase/supabase-js";
 import type { PushSubscription } from "web-push";
-dotenv.config();
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 webpush.setVapidDetails(
   `mailto:${process.env.VAPID_CONTACT_EMAIL}`,
@@ -12,48 +15,39 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!
 );
 
-const SUBSCRIPTION_FILE = ".subscription.json";
-
-function saveSubscription(sub: PushSubscription) {
-  fs.writeFileSync(SUBSCRIPTION_FILE, JSON.stringify(sub));
-}
-
-function loadSubscription(): PushSubscription | null {
-  if (fs.existsSync(SUBSCRIPTION_FILE)) {
-    return JSON.parse(fs.readFileSync(SUBSCRIPTION_FILE, "utf-8"));
-  }
-  return null;
-}
-
 export async function subscribeUser(sub: PushSubscription) {
-  saveSubscription(sub);
+  await supabase
+    .from("subscriptions")
+    .upsert([{ endpoint: sub.endpoint, subscription: sub }], {
+      onConflict: "endpoint",
+    });
   return { success: true };
 }
 
-export async function unsubscribeUser() {
-  if (fs.existsSync(SUBSCRIPTION_FILE)) {
-    fs.unlinkSync(SUBSCRIPTION_FILE);
-  }
+export async function unsubscribeUser(endpoint: string) {
+  await supabase.from("subscriptions").delete().eq("endpoint", endpoint);
   return { success: true };
 }
 
 export async function sendNotification(message: string) {
-  const subscription = loadSubscription();
-  if (!subscription) {
-    throw new Error("No subscription available");
+  const { data: subs, error } = await supabase
+    .from("subscriptions")
+    .select("subscription");
+  if (error) throw error;
+  if (!subs || subs.length === 0) throw new Error("No subscriptions available");
+  for (const { subscription } of subs) {
+    try {
+      await webpush.sendNotification(
+        subscription,
+        JSON.stringify({
+          title: "Test Notification",
+          body: message,
+          icon: "/icons/icon-192x192.webp",
+        })
+      );
+    } catch (error) {
+      // Optionally: remove invalid subscriptions
+    }
   }
-  try {
-    await webpush.sendNotification(
-      subscription,
-      JSON.stringify({
-        title: "Test Notification",
-        body: message,
-        icon: "/icons/icon-192x192.webp",
-      })
-    );
-    return { success: true };
-  } catch (error) {
-    console.error("Error sending push notification:", error);
-    return { success: false, error: "Failed to send notification" };
-  }
+  return { success: true };
 }
