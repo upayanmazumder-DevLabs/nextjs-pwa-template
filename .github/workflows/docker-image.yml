@@ -33,7 +33,7 @@ jobs:
       - name: Set image tag
         id: set_tag
         run: |
-          if [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             TAG="latest"
           elif [[ "${GITHUB_REF}" == refs/pull/* ]]; then
             PR_NUMBER=$(echo "${GITHUB_REF}" | grep -oP 'refs/pull/\K[0-9]+')
