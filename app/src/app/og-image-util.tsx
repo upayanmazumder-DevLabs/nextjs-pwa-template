@@ -43,15 +43,25 @@ export function createOgImage({
           color,
         }}
       >
-        <img
-          src="https://nextjs-pwa-template.upayan.dev/icon.png"
-          alt="Logo"
+        <div
           style={{
-            width: 128,
-            height: 128,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 48,
           }}
-        />
-        {text}
+        >
+          <img
+            src="https://nextjs-pwa-template.upayan.dev/icon.png"
+            alt="Logo"
+            style={{
+              width: 128,
+              height: 128,
+              marginRight: 0,
+            }}
+          />
+          <span style={{ whiteSpace: "pre-line" }}>{text}</span>
+        </div>
       </div>
     ),
     { ...size }
