@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     shortcut: "/favicon/favicon.ico",
     apple: "/favicon/apple-touch-icon.png",
   },
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://nextjs-pwa-template.upayan.dev"
+  ),
   openGraph: {
     images: [
       {

@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import icon from "@/media/icon/icon.png";
 
 export interface OgImageOptions {
   text: string;
@@ -30,7 +31,9 @@ export function createOgImage({
   const { background, color } = themes[theme] || themes.light;
   let content;
   if (typeof text === "string" && text.startsWith("__ICON_AND_TEXT__")) {
-    const actualText = text.replace("__ICON_AND_TEXT__", "");
+    // Extract icon URL
+    const [, textPart] = text.split("__ICON_AND_TEXT__");
+    const [actualText] = textPart.split("__ICON_URL__");
     content = (
       <div
         style={{
@@ -44,7 +47,7 @@ export function createOgImage({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={"/icons/icon-512x512.webp"}
+          src={icon.src}
           alt="App Icon"
           width={128}
           height={128}
