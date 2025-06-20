@@ -19,10 +19,17 @@ function getTitleFromParams(params?: Record<string, string>) {
   return "Next.js PWA Template";
 }
 
+function getThemeFromParams(params?: Record<string, string>) {
+  if (params?.tag) return "dark";
+  return "light";
+}
+
 export default function Image({ params }: { params?: Record<string, string> }) {
   const text = getTitleFromParams(params);
+  const theme = getThemeFromParams(params);
   return createOgImage({
     text,
     size,
+    theme,
   });
 }

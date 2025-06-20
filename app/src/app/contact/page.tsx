@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "Contact | Next.js PWA Template",
+  description: "Get in touch with the team behind the Next.js PWA Template.",
+};
+
 export default function ContactPage() {
   return (
     <div>

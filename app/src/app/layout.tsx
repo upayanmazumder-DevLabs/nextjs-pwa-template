@@ -21,6 +21,26 @@ export const metadata: Metadata = {
     shortcut: "/favicon/favicon.ico",
     apple: "/favicon/apple-touch-icon.png",
   },
+  openGraph: {
+    images: [
+      {
+        url: "/icons/icon-512x512.webp",
+        width: 512,
+        height: 512,
+        alt: "App Icon",
+      },
+    ],
+  },
+  twitter: {
+    images: [
+      {
+        url: "/icons/icon-512x512.webp",
+        width: 512,
+        height: 512,
+        alt: "App Icon",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
