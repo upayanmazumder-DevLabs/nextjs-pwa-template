@@ -43,6 +43,14 @@ export function createOgImage({
           color,
         }}
       >
+        <img
+          src="/icon.png"
+          alt="Logo"
+          style={{
+            width: 128,
+            height: 128,
+          }}
+        />
         {text}
       </div>
     ),
