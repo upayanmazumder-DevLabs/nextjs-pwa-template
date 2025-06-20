@@ -3,19 +3,14 @@ import {
   defaultSize,
   defaultContentType,
 } from "../og-image-util";
-import { NextRequest } from "next/server";
 
 export const alt = "Contact | Nextjs PWA Template";
 export const size = defaultSize;
 export const contentType = defaultContentType;
 
-export const runtime = "edge";
-
-export default function Image(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const text = searchParams.get("text") || "Contact | Nextjs PWA Template";
+export default function Image() {
   return createOgImage({
-    text,
+    text: "Contact | Nextjs PWA Template",
     size,
   });
 }
