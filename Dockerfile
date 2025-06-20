@@ -29,11 +29,15 @@ COPY --from=build-app /app ./app
 # Copy PM2 ecosystem config
 COPY ecosystem.config.js ./
 
+# Copy entrypoint script
+COPY entrypoint.sh ./
+RUN chmod +x ./entrypoint.sh
+
 # Expose frontend port
 EXPOSE 3000
 
 # Use tini as init system to handle signals properly
-ENTRYPOINT ["/sbin/tini", "--"]
+ENTRYPOINT ["/sbin/tini", "--", "./entrypoint.sh"]
 
 # Start both processes using PM2
 CMD ["pm2-runtime", "start", "ecosystem.config.js"]
