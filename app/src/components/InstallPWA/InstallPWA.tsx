@@ -20,7 +20,6 @@ const InstallPWA: React.FC = () => {
   const [deviceType, setDeviceType] = useState("device");
 
   useEffect(() => {
-    // Check if user previously dismissed
     if (
       typeof window !== "undefined" &&
       localStorage.getItem("pwaPromptDismissed") === "true"
@@ -86,7 +85,6 @@ const InstallPWA: React.FC = () => {
   );
 };
 
-// Type for BeforeInstallPromptEvent
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
   readonly userChoice: Promise<{
