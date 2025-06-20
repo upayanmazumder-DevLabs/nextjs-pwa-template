@@ -24,10 +24,8 @@ function PushNotificationManager() {
   const [vapidPublicKey, setVapidPublicKey] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch VAPID public key from runtime-config.json
-    fetch("/runtime-config.json")
-      .then((res) => res.json())
-      .then((config) => setVapidPublicKey(config.VAPID_PUBLIC_KEY || null));
+    // Directly use the env variable injected at build time
+    setVapidPublicKey(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || null);
 
     if ("serviceWorker" in navigator && "PushManager" in window) {
       setIsSupported(true);
