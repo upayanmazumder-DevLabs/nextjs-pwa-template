@@ -20,7 +20,8 @@ function getTitleFromParams(params?: Record<string, string>) {
 }
 
 function getThemeFromParams(params?: Record<string, string>) {
-  if (params?.tag) return "dark";
+  if (params?.tag || params?.about || params?.contact || params?.slug)
+    return "dark";
   return "light";
 }
 

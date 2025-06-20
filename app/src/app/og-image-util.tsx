@@ -17,8 +17,8 @@ const themes = {
     color: "#0a0a0a",
   },
   dark: {
-    background: "#18181b",
-    color: "#fafafa",
+    background: "#000",
+    color: "#fff",
   },
 };
 
