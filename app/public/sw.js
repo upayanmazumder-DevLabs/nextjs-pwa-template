@@ -2,7 +2,6 @@ const CACHE_NAME = "nextjs-pwa-template-v1";
 const CORE_ASSETS = [
   "/",
   "/offline",
-  "/manifest.json",
   "/icons/icon-16x16.webp",
   "/icons/icon-32x32.webp",
   "/icons/icon-48x48.webp",
