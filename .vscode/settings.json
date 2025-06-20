@@ -1,4 +1,10 @@
 {
   "colorWheel.settings.workspaceColor": "hsl(151,81%,69%)",
-  "cSpell.words": ["iarc", "logomark", "SUPABASE", "webpush"]
+  "cSpell.words": [
+    "beforeinstallprompt",
+    "iarc",
+    "logomark",
+    "SUPABASE",
+    "webpush"
+  ]
 }
