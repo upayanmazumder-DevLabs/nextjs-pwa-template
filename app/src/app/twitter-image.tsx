@@ -3,19 +3,33 @@ import {
   defaultSize,
   defaultContentType,
 } from "./og-image-util";
-import { NextRequest } from "next/server";
 
 export const alt = "Next.js PWA Template";
 export const size = defaultSize;
 export const contentType = defaultContentType;
 
-export const runtime = "edge";
+function getTitleFromParams(params?: Record<string, string>) {
+  if (!params) return "Next.js PWA Template";
+  if (params.about !== undefined) return "About Next.js PWA Template";
+  if (params.contact !== undefined) return "Contact Next.js PWA Template";
+  if (params.slug) return `Page: ${params.slug}`;
+  if (params.tag && params.item)
+    return `Tag: ${params.tag}, Item: ${params.item}`;
+  if (params.tag) return `Tag: ${params.tag}`;
+  return "Next.js PWA Template";
+}
 
-export default function Image(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const text = searchParams.get("text") || "Next.js PWA Template";
+function getThemeFromParams(params?: Record<string, string>) {
+  if (params?.tag) return "dark";
+  return "light";
+}
+
+export default function Image({ params }: { params?: Record<string, string> }) {
+  const text = getTitleFromParams(params);
+  const theme = getThemeFromParams(params);
   return createOgImage({
     text,
     size,
+    theme,
   });
 }
