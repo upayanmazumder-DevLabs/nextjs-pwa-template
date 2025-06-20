@@ -57,7 +57,7 @@ export function createOgImage({
             style={{
               width: 128,
               height: 128,
-              marginRight: 0,
+              marginRight: 16,
             }}
           />
           <span style={{ whiteSpace: "pre-line" }}>{text}</span>
