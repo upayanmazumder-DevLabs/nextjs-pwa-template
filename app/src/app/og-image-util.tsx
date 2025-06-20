@@ -44,7 +44,7 @@ export function createOgImage({
         }}
       >
         <img
-          src="/icon.png"
+          src="https://nextjs-pwa-template.upayan.dev/icon.png"
           alt="Logo"
           style={{
             width: 128,
