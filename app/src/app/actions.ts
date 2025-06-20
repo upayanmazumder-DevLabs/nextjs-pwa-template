@@ -3,6 +3,7 @@
 import webpush from "web-push";
 import dotenv from "dotenv";
 import fs from "fs";
+import type { PushSubscription } from "web-push";
 dotenv.config();
 
 webpush.setVapidDetails(
@@ -13,18 +14,18 @@ webpush.setVapidDetails(
 
 const SUBSCRIPTION_FILE = ".subscription.json";
 
-function saveSubscription(sub: any) {
+function saveSubscription(sub: PushSubscription) {
   fs.writeFileSync(SUBSCRIPTION_FILE, JSON.stringify(sub));
 }
 
-function loadSubscription() {
+function loadSubscription(): PushSubscription | null {
   if (fs.existsSync(SUBSCRIPTION_FILE)) {
     return JSON.parse(fs.readFileSync(SUBSCRIPTION_FILE, "utf-8"));
   }
   return null;
 }
 
-export async function subscribeUser(sub: any) {
+export async function subscribeUser(sub: PushSubscription) {
   saveSubscription(sub);
   return { success: true };
 }
