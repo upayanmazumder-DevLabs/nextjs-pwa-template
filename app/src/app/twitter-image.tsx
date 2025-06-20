@@ -3,8 +3,6 @@ import {
   defaultSize,
   defaultContentType,
 } from "./og-image-util";
-import icon from "@/media/icon/icon.png";
-import { headers } from "next/headers";
 
 export const alt = "Next.js PWA Template";
 export const size = defaultSize;
@@ -26,24 +24,11 @@ function getThemeFromParams(params?: Record<string, string>) {
   return "light";
 }
 
-export default async function Image({
-  params,
-}: {
-  params?: Record<string, string>;
-}) {
+export default function Image({ params }: { params?: Record<string, string> }) {
   const text = getTitleFromParams(params);
   const theme = getThemeFromParams(params);
-  // Get host from headers for absolute URL (App Router best practice)
-  const headersList = await headers();
-  const host = headersList.get("host");
-  const protocol = host && host.startsWith("localhost") ? "http" : "https";
-  const base =
-    (host ? `${protocol}://${host}` : process.env.NEXT_PUBLIC_SITE_URL) ||
-    "https://nextjs-pwa-template.upayan.dev";
-  // icon.src is something like /_next/static/media/icon.xxxxx.png
-  const iconUrl = base.replace(/\/$/, "") + icon.src;
   return createOgImage({
-    text: `__ICON_AND_TEXT__${text}__ICON_URL__${iconUrl}`,
+    text,
     size,
     theme,
   });
