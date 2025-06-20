@@ -1,244 +1,88 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { subscribeUser, unsubscribeUser, sendNotification } from "./actions";
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import {
+  checkPermissionStateAndAct,
+  notificationUnsupported,
+  registerAndSubscribe,
+  sendWebPush,
+} from "../components/Push/Push";
 
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
-
-function PushNotificationManager() {
-  const [isSupported, setIsSupported] = useState(false);
+export default function Home() {
+  const [unsupported, setUnsupported] = useState<boolean>(false);
   const [subscription, setSubscription] = useState<PushSubscription | null>(
     null
   );
-  const [message, setMessage] = useState("");
-  const [vapidPublicKey, setVapidPublicKey] = useState<string | null>(null);
+  const [message, setMessage] = useState<string>("");
+  const [feedback, setFeedback] = useState<string>("");
+  const [sending, setSending] = useState<boolean>(false);
 
   useEffect(() => {
-    // Directly use the env variable injected at build time
-    setVapidPublicKey(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || null);
-
-    if ("serviceWorker" in navigator && "PushManager" in window) {
-      setIsSupported(true);
-      registerServiceWorker();
-    }
+    const isUnsupported = notificationUnsupported();
+    setUnsupported(isUnsupported);
+    if (isUnsupported) return;
+    checkPermissionStateAndAct(setSubscription);
   }, []);
 
-  async function registerServiceWorker() {
-    const registration = await navigator.serviceWorker.register("/sw.js", {
-      scope: "/",
-      updateViaCache: "none",
-    });
-    const sub = await registration.pushManager.getSubscription();
-    setSubscription(sub);
-  }
-
-  async function subscribeToPush() {
-    if (!vapidPublicKey) {
-      alert("VAPID public key not loaded yet.");
-      return;
-    }
-    const registration = await navigator.serviceWorker.ready;
-    const sub = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-    });
-    setSubscription(sub);
-    const serializedSub = JSON.parse(JSON.stringify(sub));
-    await subscribeUser(serializedSub);
-  }
-
-  async function unsubscribeFromPush() {
-    if (subscription) {
-      await subscription.unsubscribe();
-      setSubscription(null);
-      await unsubscribeUser(subscription.endpoint);
-    }
-  }
-
-  async function sendTestNotification() {
-    if (subscription) {
-      await sendNotification(message);
+  const handleSendPush = async () => {
+    setSending(true);
+    setFeedback("");
+    try {
+      await sendWebPush(message);
+      setFeedback("Push sent!");
       setMessage("");
+    } catch (e) {
+      setFeedback("Failed to send push");
+    } finally {
+      setSending(false);
     }
-  }
-
-  if (!isSupported) {
-    return <p>Push notifications are not supported in this browser.</p>;
-  }
+  };
 
   return (
-    <div>
-      <h3>Push Notifications</h3>
-      {subscription ? (
-        <>
-          <p>You are subscribed to push notifications.</p>
-          <button onClick={unsubscribeFromPush}>Unsubscribe</button>
-          <input
-            type="text"
-            placeholder="Enter notification message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <button onClick={sendTestNotification}>Send Test</button>
-        </>
-      ) : (
-        <>
-          <p>You are not subscribed to push notifications.</p>
-          <button onClick={subscribeToPush}>Subscribe</button>
-        </>
-      )}
-    </div>
-  );
-}
-
-function InstallPrompt() {
-  const [isIOS, setIsIOS] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
-
-  useEffect(() => {
-    setIsIOS(
-      /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-        !(window as unknown as { MSStream?: unknown }).MSStream
-    );
-    setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
-  }, []);
-
-  if (isStandalone) {
-    return null;
-  }
-
-  return (
-    <div>
-      <h3>Install App</h3>
-      <button>Add to Home Screen</button>
-      {isIOS && (
-        <p>
-          To install this app on your iOS device, tap the share button
-          <span role="img" aria-label="share icon">
-            {" "}
-            ⎋{" "}
-          </span>
-          and then &quot;Add to Home Screen&quot;
-          <span role="img" aria-label="plus icon">
-            {" "}
-            ➕{" "}
-          </span>
-          .
-        </p>
-      )}
-    </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <PushNotificationManager />
-        <InstallPrompt />
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <main className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-col items-center w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold text-white mb-6">
+          Next.js PWA Push Demo
+        </h1>
+        <button
+          disabled={unsupported || !!subscription}
+          onClick={() => registerAndSubscribe(setSubscription)}
+          className={`px-6 py-3 rounded-lg font-semibold transition-colors duration-200 mb-8 w-full ${
+            unsupported
+              ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+              : subscription
+              ? "bg-green-600 text-white"
+              : "bg-blue-700 text-white hover:bg-blue-800"
+          }`}
+        >
+          {unsupported
+            ? "Notification Unsupported"
+            : subscription
+            ? "Notifications Enabled"
+            : "Enable Notifications"}
+        </button>
+        {subscription && (
+          <div className="flex flex-col items-center w-full">
+            <input
+              placeholder="Type push message ..."
+              className="w-full px-4 py-2 border border-gray-700 bg-gray-900 text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 mt-4 placeholder-gray-400"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              disabled={sending}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            <button
+              className="px-4 py-2 bg-indigo-700 text-white rounded-md hover:bg-indigo-800 transition-colors duration-200 w-full"
+              onClick={handleSendPush}
+              disabled={sending || !message.trim()}
+            >
+              {sending ? "Sending..." : "Send Test Push"}
+            </button>
+            {feedback && (
+              <div className="mt-4 text-sm text-green-400">{feedback}</div>
+            )}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
