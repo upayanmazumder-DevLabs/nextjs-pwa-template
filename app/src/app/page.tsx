@@ -99,7 +99,8 @@ function InstallPrompt() {
 
   useEffect(() => {
     setIsIOS(
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream
+      /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+        !(window as unknown as { MSStream?: unknown }).MSStream
     );
     setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
   }, []);
